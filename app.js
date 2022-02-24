@@ -3,6 +3,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require('lodash');
+const mongoose = require("mongoose");
+mongoose.connect("mongodb+srv://admin:admin123@cluster0.b892h.mongodb.net/blogDB", { useUnifiedTopology: true, useNewUrlParser: true });
+
+const blogSchema = {
+  title: String,
+  content: String
+}
 
 
 const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
@@ -20,13 +27,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 
-let dailyInput = []
 
 app.get('/', (req, resp) => {
-  resp.render('home', {
-    pageHead: 'HOME',
-    content: homeStartingContent,
-    newInput: dailyInput
+  Blog.find({}, (err, foundItems) => {
+    // console.log(foundItems)
+    resp.render('home', {
+      pageHead: 'HOME',
+      content: homeStartingContent,
+      newInput: foundItems
+    })
   })
 })
 
@@ -49,39 +58,37 @@ app.get('/compose', (req, resp) => {
 })
 
 
+const Blog = mongoose.model('Blog', blogSchema);
 
 app.post('/compose', (req, resp) => {
-  const userPost = {
+
+  const userPost = new Blog({
     title: req.body.postTitle,
     content: req.body.postBody
-  }
-  dailyInput.push(userPost)
+  })
+  userPost.save();
+
   resp.redirect('/')
 })
 
 
 
-app.get('/post/:dynamicRoute', (req, resp) => {
-
-  console.log(_.lowerCase(req.params.dynamicRoute))
-
-  let requestedTitle = _.lowerCase(req.params.dynamicRoute)
+app.get('/post/:postID', (req, resp) => {
 
 
-  dailyInput.forEach((obj) => {
-    console.log(obj.title)
-    let storedTitle = _.lowerCase(obj.title)
+  let requestedPostID = req.params.postID
 
-    if (storedTitle == requestedTitle) {
+  Blog.findOne({ _id: requestedPostID }, (err, foundPost) => {
+    if (err) {
+      console.log(err)
+    }
+    else {
       resp.render('post', {
-        postTitle: obj.title,
-        postBody: obj.content
+        postTitle: foundPost.title,
+        postContent: foundPost.content
       })
     }
-
   })
-
-
 })
 
 
