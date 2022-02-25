@@ -40,3 +40,14 @@ h1{
 h3{
   color: #86c2c5  
 }
+
+#edit_delete button{
+  color: #86c2c5;
+  border: 0ch;
+  background-color: transparent;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 2rem;
+}

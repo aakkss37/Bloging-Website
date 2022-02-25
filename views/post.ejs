@@ -5,4 +5,10 @@
     <p>
         <%=postContent%>
     </p>
+    <div id="edit_delete">
+        <form action="/delete" method="post">
+            <button type="submit" name="postID" value="<%= postID %>"><i class="fa-solid fa-trash-can"></i></button>
+        </form>
+    </div>
+
     <%- include('partials/footer'); -%>
